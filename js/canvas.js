@@ -25,6 +25,7 @@ class CanvasEngine {
     this.height = window.innerHeight;
     this.canvas.width = this.width * window.devicePixelRatio;
     this.canvas.height = this.height * window.devicePixelRatio;
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform to prevent compounding on resize
     this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   }
 
@@ -232,6 +233,22 @@ class CanvasEngine {
 
   // Main animation frame loop
   animate() {
+    // Safety caps to prevent memory issues on rapid input (protects low-end devices)
+    if (this.particles.length > 500) this.particles.splice(0, this.particles.length - 400);
+    if (this.ripples.length > 50) this.ripples.splice(0, this.ripples.length - 40);
+    if (this.floatingItems.length > 150) {
+      // Preserve static (draggable) animals, trim oldest transient items
+      const statics = [];
+      const transients = [];
+      for (const item of this.floatingItems) {
+        if (item.isStatic) statics.push(item);
+        else transients.push(item);
+      }
+      if (transients.length > 100) {
+        this.floatingItems = statics.concat(transients.slice(-100));
+      }
+    }
+
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // 1. Render & Update Ripples

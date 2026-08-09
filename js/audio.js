@@ -119,9 +119,19 @@ class SoundSynthesizer {
     this.ensureContext();
     if (!this.ctx) return;
 
+    // Early return for unknown animal types — avoids creating orphaned audio nodes
+    if (!['dog', 'cat', 'duck', 'bird', 'lion'].includes(animalType)) {
+      this.playTone();
+      return;
+    }
+
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
+
+    // Connect audio graph BEFORE starting oscillator to prevent silent playback
+    osc.connect(gain);
+    gain.connect(this.masterGain);
 
     switch (animalType) {
       case 'dog': // Woof!
@@ -174,14 +184,7 @@ class SoundSynthesizer {
         osc.start(now);
         osc.stop(now + 0.55);
         break;
-
-      default:
-        this.playTone();
-        return;
     }
-
-    osc.connect(gain);
-    gain.connect(this.masterGain);
   }
 
   // Bubble Pop Sound Effect

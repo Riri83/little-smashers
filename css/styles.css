@@ -492,6 +492,8 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  touch-action: pan-y; /* Override global touch-action:none so parents can scroll modal content */
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer {
