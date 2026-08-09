@@ -1,0 +1,22 @@
+{
+  "name": "Little Smashers - Sensory Touch & Keyboard Smash",
+  "short_name": "Little Smashers",
+  "description": "Safe, vibrant sensory touch and keyboard smashing app for toddlers and infants.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#12131C",
+  "theme_color": "#12131C",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

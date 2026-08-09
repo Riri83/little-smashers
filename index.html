@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Little Smashers">
+  <meta name="theme-color" content="#12131C">
+  <meta name="description" content="A safe, colorful touch and keyboard-smash sensory game app for toddlers and infants with PWA & mobile kiosk guide.">
+
+  <title>Little Smashers - Sensory Touch & Keyboard Smash</title>
+
+  <!-- Favicon and PWA icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Fullscreen Touch Canvas Container -->
+  <main id="app-container">
+    <canvas id="smash-canvas"></canvas>
+
+    <!-- Initial Touch / Start Splash Overlay -->
+    <div id="start-overlay" class="overlay active">
+      <div class="splash-card">
+        <div class="splash-icon">✨</div>
+        <h1 class="splash-title">Little Smashers</h1>
+        <p class="splash-subtitle">Baby & Toddler Touch & Keyboard Smash</p>
+
+        <button id="start-btn" class="primary-btn pulse-glow">
+          <span class="btn-icon">🎮</span> Start Playing
+        </button>
+
+        <div class="splash-footer">
+          <button id="open-kiosk-splash-btn" class="text-link-btn">
+            🔒 How to lock screen (Parent Guide)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parent Gate Lock Button (Top-Left, Appears when Toolbar is locked for Toddler Play) -->
+    <div id="parent-gate-trigger" class="parent-gate-trigger hidden" title="Press & hold 3 seconds to unlock toolbar">
+      <div class="gate-progress-ring">
+        <svg viewBox="0 0 44 44">
+          <circle class="bg" cx="22" cy="22" r="18"></circle>
+          <circle class="meter" cx="22" cy="22" r="18" id="gate-progress-circle"></circle>
+        </svg>
+      </div>
+      <span class="gate-icon">🔒</span>
+      <span class="gate-hint">Hold 3s</span>
+    </div>
+
+    <!-- Vertical Floating Sensory Controls Bar (Visible by default on play start) -->
+    <header id="control-bar" class="control-bar hidden">
+      <div class="control-main-row">
+        <div class="mode-selectors">
+          <button class="mode-btn active" data-mode="shapes" title="Shapes & Colors">
+            <span class="mode-icon">🎨</span>
+            <span class="mode-label">Shapes</span>
+          </button>
+
+          <button class="mode-btn" data-mode="abc" title="ABC & 123">
+            <span class="mode-icon">🔤</span>
+            <span class="mode-label">ABC</span>
+          </button>
+
+          <!-- Animals Mode with Compact Segmented Switch -->
+          <div class="mode-with-sub">
+            <button class="mode-btn" data-mode="animals" title="Animals">
+              <span class="mode-icon">🐶</span>
+              <span class="mode-label">Animals</span>
+            </button>
+
+            <div id="sub-opt-animals" class="compact-segmented-switch hidden">
+              <button id="opt-animal-static" class="switch-pill active" title="Drag & Drop (Max 5)">🖐️ Drag</button>
+              <button id="opt-animal-floating" class="switch-pill" title="Floating Mode">🎈 Float</button>
+            </div>
+          </div>
+
+          <button class="mode-btn" data-mode="music" title="Music Piano">
+            <span class="mode-icon">🎵</span>
+            <span class="mode-label">Piano</span>
+          </button>
+
+          <!-- Bubbles Mode with Compact Segmented Switch -->
+          <div class="mode-with-sub">
+            <button class="mode-btn" data-mode="bubbles" title="Bubbles & Fireworks">
+              <span class="mode-icon">🫧</span>
+              <span class="mode-label">Bubbles</span>
+            </button>
+
+            <div id="sub-opt-bubbles" class="compact-segmented-switch hidden">
+              <button id="opt-bubble-pop" class="switch-pill active" title="Tap to Pop">💥 Pop</button>
+              <button id="opt-bubble-float" class="switch-pill" title="Floating Mode">🫧 Float</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-actions">
+          <button id="lock-toolbar-btn" class="icon-btn" title="Lock Toolbar for Toddler Play">🛡️</button>
+          <button id="settings-btn" class="icon-btn" title="Parent Settings">⚙️</button>
+          <button id="kiosk-guide-btn" class="icon-btn" title="Kiosk Lock Guide">🔒</button>
+          <button id="fullscreen-btn" class="icon-btn" title="Toggle Fullscreen">⛶</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Parent Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>⚙️ Parent Settings</h2>
+          <button id="close-settings-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="setting-group">
+            <label for="volume-slider">
+              <span>🔊 Master Volume</span>
+              <span id="volume-val">80%</span>
+            </label>
+            <input type="range" id="volume-slider" min="0" max="100" value="80">
+          </div>
+
+          <div class="setting-group">
+            <label for="synth-type">
+              <span>🎼 Sound Theme</span>
+            </label>
+            <select id="synth-type">
+              <option value="xylophone">Bright Xylophone</option>
+              <option value="chimes">Pentatonic Chimes</option>
+              <option value="synth">8-Bit Retro Synth</option>
+              <option value="marimba">Warm Marimba</option>
+            </select>
+          </div>
+
+          <div class="setting-group checkbox-group">
+            <label for="pop-bubbles-toggle">
+              <span>🫧 Poppable Bubbles (Tap bubbles to pop them)</span>
+            </label>
+            <input type="checkbox" id="pop-bubbles-toggle" checked>
+          </div>
+
+          <div class="setting-group checkbox-group">
+            <label for="static-animals-toggle">
+              <span>🐶 Static & Draggable Animals (Max 5, drag around)</span>
+            </label>
+            <input type="checkbox" id="static-animals-toggle" checked>
+          </div>
+
+          <div class="setting-group checkbox-group">
+            <label for="speech-toggle">
+              <span>🗣️ Speak ABCs & Numbers (Text-to-Speech)</span>
+            </label>
+            <input type="checkbox" id="speech-toggle" checked>
+          </div>
+
+          <div class="setting-group checkbox-group">
+            <label for="particle-toggle">
+              <span>✨ High Density Particles & Effects</span>
+            </label>
+            <input type="checkbox" id="particle-toggle" checked>
+          </div>
+
+          <div class="setting-group checkbox-group">
+            <label for="dark-mode-toggle">
+              <span>🌙 Night Mode (Darker Canvas)</span>
+            </label>
+            <input type="checkbox" id="dark-mode-toggle">
+          </div>
+
+          <div class="setting-info">
+            <p>💡 <strong>Tip:</strong> Enable <em>Guided Access</em> on iOS or <em>App Pinning</em> on Android to lock hardware gestures completely while your baby plays!</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="kiosk-guide-from-settings" class="secondary-btn">🔒 Screen Lock Guide</button>
+          <button id="save-settings-btn" class="primary-btn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kiosk Lock Guide Modal (iOS Guided Access & Android App Pinning) -->
+    <div id="kiosk-modal" class="modal-overlay hidden">
+      <div class="modal-card kiosk-card">
+        <div class="modal-header">
+          <h2>🔒 Mobile Lock / Kiosk Mode Guide</h2>
+          <button id="close-kiosk-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="tab-selectors">
+            <button class="tab-btn active" data-tab="ios">📱 iPhone / iPad (iOS)</button>
+            <button class="tab-btn" data-tab="android">🤖 Android Phone / Tablet</button>
+          </div>
+
+          <!-- iOS Guided Access Tab -->
+          <div id="tab-ios" class="tab-content active">
+            <div class="kiosk-banner ios-banner">
+              <span class="banner-icon">🍎</span>
+              <div>
+                <strong>iOS Guided Access</strong>
+                <p>Locks the device into Little Smashers and disables Home swipe & notifications.</p>
+              </div>
+            </div>
+
+            <ol class="kiosk-steps">
+              <li>
+                <span class="step-num">1</span>
+                <div class="step-text">
+                  <strong>Enable Guided Access:</strong> Open <em>Settings</em> &gt; <em>Accessibility</em> &gt; <em>Guided Access</em> and turn it <strong>ON</strong>. Set a Passcode or Face ID.
+                </div>
+              </li>
+              <li>
+                <span class="step-num">2</span>
+                <div class="step-text">
+                  <strong>Shortcut (Optional):</strong> Turn on <em>Accessibility Shortcut</em> so you can triple-click the side button anytime.
+                </div>
+              </li>
+              <li>
+                <span class="step-num">3</span>
+                <div class="step-text">
+                  <strong>Lock Little Smashers:</strong> Return to this app, then <strong>Triple-Click the Side/Power Button</strong> (or Home button on older iPhones).
+                </div>
+              </li>
+              <li>
+                <span class="step-num">4</span>
+                <div class="step-text">
+                  <strong>Start Session:</strong> Tap <strong>Start</strong> in the top right. Swipe-to-home and status bars are now locked!
+                </div>
+              </li>
+              <li>
+                <span class="step-num">5</span>
+                <div class="step-text">
+                  <strong>To Exit:</strong> Triple-click the Side/Power button again and enter your Passcode or Face ID.
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Android App Pinning Tab -->
+          <div id="tab-android" class="tab-content">
+            <div class="kiosk-banner android-banner">
+              <span class="banner-icon">🤖</span>
+              <div>
+                <strong>Android App Pinning</strong>
+                <p>Pins Chrome/Little Smashers to your screen and disables Home & Back buttons.</p>
+              </div>
+            </div>
+
+            <ol class="kiosk-steps">
+              <li>
+                <span class="step-num">1</span>
+                <div class="step-text">
+                  <strong>Enable App Pinning:</strong> Open <em>Settings</em> &gt; <em>Security / Passwords & Security</em> &gt; <em>App Pinning</em> (or <em>Screen Pinning</em>) and turn it <strong>ON</strong>.
+                </div>
+              </li>
+              <li>
+                <span class="step-num">2</span>
+                <div class="step-text">
+                  <strong>Open Recents:</strong> Swipe up from bottom or press the Recents (Overview) navigation button.
+                </div>
+              </li>
+              <li>
+                <span class="step-num">3</span>
+                <div class="step-text">
+                  <strong>Pin App:</strong> Tap the <strong>Little Smashers / Chrome Icon</strong> at the top of the app preview card and select <strong>Pin</strong> 📌.
+                </div>
+              </li>
+              <li>
+                <span class="step-num">4</span>
+                <div class="step-text">
+                  <strong>To Exit:</strong> Swipe up and hold (or press Back + Home together) and unlock with your phone PIN or fingerprint.
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="got-it-kiosk-btn" class="primary-btn">Got It!</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/audio.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/modes.js"></script>
+  <script src="js/kiosk-guide.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
