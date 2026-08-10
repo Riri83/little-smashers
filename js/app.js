@@ -46,6 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const GATE_HOLD_DURATION_MS = 3000; // 3 Seconds hold
   const CIRCLE_CIRCUMFERENCE = 113.1; // 2 * PI * 18
 
+  // Fullscreen API detection (iOS Safari supports NONE of these)
+  const fullscreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || false;
+  const isStandalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches;
+
+  // Hide fullscreen button when already running as installed PWA (already fullscreen)
+  if (isStandalone && fullscreenBtn) {
+    fullscreenBtn.style.display = 'none';
+  }
+
   // Register PWA Service Worker for offline play
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(() => {
@@ -140,23 +151,50 @@ document.addEventListener('DOMContentLoaded', () => {
     window.modeManager.handleSmash(null, null, e.key);
   });
 
-  // Request Fullscreen
+  // Request Fullscreen (with webkit prefix fallback)
   function requestFullscreenMode() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {
-        // Fullscreen API may be restricted on iOS Safari, which relies on Guided Access / PWA standalone mode
-      });
+    const el = document.documentElement;
+    const currentFs = document.fullscreenElement || document.webkitFullscreenElement;
+
+    if (fullscreenEnabled && !currentFs) {
+      const rfs = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (rfs) rfs.call(el).catch(() => {});
+    } else if (!fullscreenEnabled && !isStandalone) {
+      // No Fullscreen API (iOS Safari) — show a helpful toast
+      showFullscreenToast();
     }
   }
 
-  // Start Playing Action - Requests Fullscreen by default & shows toolbar
+  // Toast helper for iOS: guides parents to Add to Home Screen
+  function showFullscreenToast() {
+    const existing = document.getElementById('ios-fs-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'ios-fs-toast';
+    toast.className = 'ios-fullscreen-toast';
+    toast.innerHTML = '📱 For fullscreen on iOS, tap <strong>Share</strong> ↗ then <strong>Add to Home Screen</strong>';
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('visible'));
+
+    const dismiss = () => {
+      toast.classList.remove('visible');
+      setTimeout(() => toast.remove(), 400);
+    };
+
+    setTimeout(dismiss, 5000);
+    toast.addEventListener('click', dismiss);
+  }
+
+  // Start Playing Action — requests fullscreen only when the API exists
   startBtn.addEventListener('click', () => {
     startOverlay.classList.remove('active');
     controlBar.classList.remove('hidden');
     parentGateTrigger.classList.add('hidden');
     isPlaying = true;
     window.soundEngine.ensureContext();
-    requestFullscreenMode(); // Full screen by default on play start!
+    if (fullscreenEnabled) requestFullscreenMode();
   });
 
   openKioskSplashBtn.addEventListener('click', () => {
@@ -171,12 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Fullscreen Button - EXCLUSIVELY toggles Fullscreen Mode On/Off
+  // Fullscreen Button — toggles fullscreen or shows iOS toast
   fullscreenBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      requestFullscreenMode();
+    const currentFs = document.fullscreenElement || document.webkitFullscreenElement;
+    if (currentFs) {
+      const efs = document.exitFullscreen || document.webkitExitFullscreen;
+      if (efs) efs.call(document).catch(() => {});
     } else {
-      document.exitFullscreen().catch(() => {});
+      requestFullscreenMode();
     }
   });
 
