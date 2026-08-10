@@ -14,7 +14,13 @@ class CanvasEngine {
     this.draggedItem = null;
 
     this.resize();
-    window.addEventListener('resize', () => this.resize());
+    this._resizeTimer = null;
+    window.addEventListener('resize', () => {
+      // Debounce: iOS doesn't update viewport dimensions instantly on orientation change.
+      // Wait for the rotation animation to settle before resizing the canvas.
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => this.resize(), 150);
+    });
 
     this.animate = this.animate.bind(this);
     requestAnimationFrame(this.animate);

@@ -36,6 +36,7 @@
 html, body {
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* Modern mobile: accounts for dynamic URL bar */
   overflow: hidden;
   position: fixed;
   top: 0;
@@ -50,6 +51,7 @@ html, body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -73,7 +75,9 @@ html, body {
 .parent-gate-trigger {
   position: absolute;
   top: 16px;
+  top: max(16px, env(safe-area-inset-top));
   left: 16px;
+  left: max(16px, env(safe-area-inset-left));
   z-index: 15;
   width: 52px;
   height: 52px;
@@ -149,7 +153,9 @@ html, body {
 .control-bar {
   position: absolute;
   top: 16px;
+  top: max(16px, env(safe-area-inset-top));
   left: 16px;
+  left: max(16px, env(safe-area-inset-left));
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -492,8 +498,15 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  touch-action: pan-y; /* Override global touch-action:none so parents can scroll modal content */
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Propagate touch-action override to ALL descendants inside modal body.
+   Without this, the global * { touch-action: none } still applies to child
+   elements (<ol>, <li>, <p>, etc.), blocking scroll when you touch them. */
+.modal-body * {
+  touch-action: pan-y;
 }
 
 .modal-footer {
@@ -707,14 +720,18 @@ html, body {
 @media (max-width: 600px) {
   .parent-gate-trigger {
     top: 12px;
+    top: max(12px, env(safe-area-inset-top));
     left: 12px;
+    left: max(12px, env(safe-area-inset-left));
     width: 44px;
     height: 44px;
   }
 
   .control-bar {
     top: 12px;
+    top: max(12px, env(safe-area-inset-top));
     left: 12px;
+    left: max(12px, env(safe-area-inset-left));
     width: 44px;
     padding: 8px 4px;
   }
@@ -739,3 +756,1049 @@ html, body {
     font-size: 11px;
   }
 }
+
+/* Landscape Orientation — compact toolbar, safe areas, modal sizing */
+@media (orientation: landscape) and (max-height: 500px) {
+  .parent-gate-trigger {
+    top: max(6px, env(safe-area-inset-top));
+    left: max(6px, env(safe-area-inset-left));
+    width: 40px;
+    height: 40px;
+  }
+
+  .control-bar {
+    top: max(6px, env(safe-area-inset-top));
+    left: max(6px, env(safe-area-inset-left));
+    width: 40px;
+    padding: 5px 3px;
+    gap: 4px;
+    max-height: calc(100vh - 12px);
+    max-height: calc(100dvh - 12px);
+    overflow-y: auto;
+    border-radius: 22px;
+  }
+
+  .control-main-row {
+    gap: 4px;
+  }
+
+  .mode-selectors {
+    gap: 3px;
+  }
+
+  .mode-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mode-btn .mode-icon {
+    font-size: 14px;
+  }
+
+  .control-actions {
+    gap: 3px;
+    padding-top: 4px;
+  }
+
+  .icon-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  /* Splash screen — compact for landscape */
+  .splash-card {
+    padding: 20px 24px;
+    max-width: 380px;
+  }
+
+  .splash-icon {
+    font-size: 36px;
+    margin-bottom: 6px;
+  }
+
+  .splash-title {
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+
+  .splash-subtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .primary-btn {
+    padding: 10px 24px;
+    font-size: 17px;
+  }
+
+  .splash-footer {
+    margin-top: 14px;
+  }
+
+  /* Modals — fit within short landscape viewport */
+  .modal-card {
+    max-height: calc(100vh - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .modal-header {
+    padding: 12px 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 17px;
+  }
+
+  .modal-body {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .modal-footer {
+    padding: 10px 16px;
+  }
+
+  .kiosk-banner {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .kiosk-steps {
+    gap: 10px;
+  }
+
+  .step-text {
+    font-size: 13px;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .setting-group {
+    margin-bottom: 10px;
+  }
+
+  .compact-segmented-switch {
+    margin-left: 6px;
+  }
+
+  .switch-pill {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+/* ==========================================================================
+   LogicLike 0-4 Puzzles & Avatar Themes Design System
+   ========================================================================== */
+
+.logic-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  background: radial-gradient(circle at center, #1A1A2E 0%, #0F0F1A 100%);
+  display: flex;
+  flex-direction: column;
+  color: var(--text-light);
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.logic-container.hidden {
+  display: none !important;
+}
+
+.logic-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Header & Avatar Bar */
+.logic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px 12px 75px; /* Extra left padding to clear floating vertical toolbar */
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.avatar-profile-btn:active {
+  transform: scale(0.95);
+}
+
+.avatar-emoji {
+  font-size: 26px;
+}
+
+.avatar-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-name {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.avatar-sub {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+/* Age Level Pills */
+.age-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: 16px;
+}
+
+.age-pill {
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.age-pill.active {
+  background: var(--primary-color);
+  color: #FFF;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Star Counter Badge */
+.star-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(249, 202, 36, 0.2);
+  border: 1px solid rgba(249, 202, 36, 0.5);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: #F9CA24;
+}
+
+/* Sub-Game Navigation Tabs */
+.logic-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px 8px 75px;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logic-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.logic-tab.active {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-light);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Main Interactive Puzzle Stage */
+.logic-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  padding-left: 75px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.puzzle-box {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.puzzle-prompt {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #FFF;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Generic Puzzle Cards Grid */
+.cards-grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.cards-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cards-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+.logic-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  user-select: none;
+}
+
+.logic-card:active {
+  transform: scale(0.94);
+}
+
+.logic-card.selected {
+  border-color: #F9CA24;
+  box-shadow: 0 0 20px rgba(249, 202, 36, 0.6);
+  transform: scale(1.05);
+}
+
+.logic-card.correct {
+  border-color: #00CEC9;
+  background: rgba(0, 206, 201, 0.2);
+  box-shadow: 0 0 30px rgba(0, 206, 201, 0.7);
+}
+
+.logic-card.wrong {
+  animation: shake 0.4s ease;
+  border-color: #FF7675;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.card-emoji {
+  font-size: 48px;
+  margin-bottom: 6px;
+}
+
+.card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+/* Shadow Matching Game */
+.shadow-match-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.draggable-source-row, .shadow-target-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.shadow-target-slot {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shadow-target-slot.matched {
+  border-style: solid;
+  border-color: #00CEC9;
+  background: rgba(0, 206, 201, 0.2);
+}
+
+.shadow-emoji {
+  font-size: 44px;
+  filter: brightness(0) invert(0.2);
+  opacity: 0.6;
+}
+
+.shadow-target-slot.matched .shadow-emoji {
+  filter: none;
+  opacity: 1;
+}
+
+.shadow-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* Patterns Game */
+.pattern-sequence {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pattern-item {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.pattern-item.question-box {
+  border: 2px dashed #F9CA24;
+  background: rgba(249, 202, 36, 0.15);
+}
+
+.pattern-choices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.pattern-choice-btn {
+  width: 80px;
+  height: 80px;
+}
+
+/* Sorting Bins Game */
+.sort-items-pool {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.sort-bins-row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.sort-bin {
+  flex: 1;
+  max-width: 260px;
+  min-height: 140px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bin-header {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.bin-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.bin-badge-emoji {
+  font-size: 32px;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* Memory Cards Game */
+.memory-grid {
+  display: grid;
+  gap: 12px;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.memory-grid.cols-4 { grid-template-columns: repeat(2, 90px); }
+.memory-grid.cols-6 { grid-template-columns: repeat(3, 90px); }
+
+.memory-card {
+  width: 90px;
+  height: 110px;
+  cursor: pointer;
+  perspective: 1000px;
+}
+
+.memory-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.memory-card.flipped .memory-card-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-card-front, .memory-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--card-border);
+}
+
+.memory-card-front {
+  background: var(--primary-gradient);
+  font-size: 28px;
+}
+
+.memory-card-back {
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 44px;
+  transform: rotateY(180deg);
+}
+
+/* Counting Game */
+.count-items-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 24px;
+  max-width: 400px;
+}
+
+.count-item-bubble {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  animation: floatBounce 2s ease-in-out infinite alternate;
+}
+
+@keyframes floatBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+.count-number-options {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.count-num-btn {
+  width: 76px;
+  height: 76px;
+}
+
+.num-digit {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  font-weight: 700;
+}
+
+/* Celebration Overlay */
+.logic-celebration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logic-celebration.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.celeb-card {
+  background: var(--bg-dark-translucent);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.celeb-badge-burst {
+  font-size: 72px;
+  margin-bottom: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+.celeb-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  color: #F9CA24;
+  margin-bottom: 4px;
+}
+
+.celeb-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.celeb-stars {
+  display: flex;
+  gap: 8px;
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.star-pop {
+  animation: popIn 0.5s ease forwards;
+}
+
+/* Theme Variants */
+.theme-boy .avatar-profile-btn {
+  border-color: #2980b9;
+  box-shadow: 0 0 12px rgba(41, 128, 185, 0.4);
+}
+
+.theme-girl .avatar-profile-btn {
+  border-color: #e84393;
+  box-shadow: 0 0 12px rgba(232, 67, 147, 0.4);
+}
+
+.theme-neutral .avatar-profile-btn {
+  border-color: #00b894;
+  box-shadow: 0 0 12px rgba(0, 184, 148, 0.4);
+}
+
+/* ==========================================================================
+   Additional 6 Games Styles (Size Compare, Shape Assembly, Dot-to-Dot, Paint, Balance Scale, Sudoku)
+   ========================================================================== */
+
+/* Size Compare */
+.size-compare-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.size-card {
+  min-width: 110px;
+  min-height: 140px;
+}
+
+/* Shape Assembly */
+.shape-assembly-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+}
+
+.assembly-source-row, .assembly-target-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.assembly-slot {
+  width: 90px;
+  height: 90px;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.assembly-slot.matched {
+  border-style: solid;
+  border-color: #00CEC9;
+  background: rgba(0, 206, 201, 0.25);
+}
+
+.slot-silhouette {
+  font-size: 42px;
+  filter: brightness(0) invert(0.25);
+  opacity: 0.5;
+}
+
+.assembly-slot.matched .slot-silhouette {
+  filter: none;
+  opacity: 1;
+}
+
+/* Dot-to-Dot */
+.dot-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  width: 100%;
+}
+
+.dots-container {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  z-index: 2;
+}
+
+.dot-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #FFF;
+  background: var(--primary-color);
+  color: #FFF;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.dot-btn.active-target {
+  animation: pulse 1.2s infinite;
+  border-color: #F9CA24;
+}
+
+.dot-btn.connected {
+  background: #00CEC9;
+  border-color: #00CEC9;
+}
+
+.dot-reward-hidden {
+  font-size: 90px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dot-reward-hidden.revealed {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Color & Paint */
+.paint-target-outline {
+  width: 130px;
+  height: 130px;
+  border: 4px dashed rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.outline-emoji {
+  font-size: 72px;
+}
+
+.color-buckets-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.color-bucket-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.bucket-color-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.bucket-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Balance Scale */
+.balance-seesaw {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.balance-seesaw.tilt-left .scale-pan[data-side="left"] {
+  transform: translateY(16px);
+}
+
+.balance-seesaw.tilt-left .scale-pan[data-side="right"] {
+  transform: translateY(-16px);
+}
+
+.balance-seesaw.tilt-right .scale-pan[data-side="left"] {
+  transform: translateY(-16px);
+}
+
+.balance-seesaw.tilt-right .scale-pan[data-side="right"] {
+  transform: translateY(16px);
+}
+
+.scale-pan {
+  width: 100px;
+  height: 100px;
+  border: 2px solid var(--card-border);
+}
+
+.seesaw-fulcrum {
+  font-size: 48px;
+}
+
+/* Mini Sudoku Grid */
+.sudoku-grid {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+}
+
+.sudoku-grid.grid-2x2 { grid-template-columns: repeat(2, 70px); }
+.sudoku-grid.grid-3x3 { grid-template-columns: repeat(3, 64px); }
+
+.sudoku-cell {
+  height: 64px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sudoku-cell.missing-cell {
+  background: rgba(249, 202, 36, 0.15);
+  border: 2px dashed #F9CA24;
+  color: #F9CA24;
+}
+
+.sudoku-cell.missing-cell.solved {
+  background: rgba(0, 206, 201, 0.25);
+  border-style: solid;
+  border-color: #00CEC9;
+}
+
+.sudoku-choices {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.sudoku-choice-btn {
+  width: 70px;
+  height: 70px;
+}
+
+/* ==========================================================================
+   Letters (Aa) & Numbers up to 100 Styles
+   ========================================================================== */
+
+/* Letter Matching */
+.letter-target-card {
+  width: 120px;
+  height: 140px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-gradient);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.upper-letter-big {
+  font-family: var(--font-heading);
+  font-size: 72px;
+  font-weight: 700;
+  color: #FFF;
+  line-height: 1;
+}
+
+.letter-sub-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.letter-choices-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.letter-choice-card {
+  width: 80px;
+  height: 80px;
+}
+
+.lower-letter-glyph {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 700;
+}
+
+/* Letter Sequence & Numbers 1-100 */
+.letter-sequence-row, .num100-sequence-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.seq-letter-box, .seq-num-box {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.seq-letter-box.missing-box, .seq-num-box.missing-box {
+  border: 2px dashed #F9CA24;
+  background: rgba(249, 202, 36, 0.15);
+  color: #F9CA24;
+}
+
+.seq-letter-box.missing-box.solved, .seq-num-box.missing-box.solved {
+  border-style: solid;
+  border-color: #00CEC9;
+  background: rgba(0, 206, 201, 0.25);
+  color: #FFF;
+}
+
+.tens-box {
+  background: rgba(108, 92, 231, 0.2);
+  border-color: rgba(108, 92, 231, 0.4);
+}
+
+
+
