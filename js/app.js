@@ -55,17 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Initialize Logic Games Engine
+  const logicContainer = document.getElementById('logic-game-container');
+  if (window.logicGamesEngine && logicContainer) {
+    window.logicGamesEngine.init(logicContainer);
+  }
+
   // Prevent Default Touch & Context Menu Gestures (Web Kiosk Controls)
   document.addEventListener('touchstart', (e) => {
-    // Only allow touches inside parent modals or control bar if unlocked
+    // Only allow touches inside parent modals, control bar, or logic game container
     if (!isPlaying && startOverlay.classList.contains('active')) return;
-    if (e.target.closest('.modal-card') || e.target.closest('.control-bar') || e.target.closest('#parent-gate-trigger')) return;
+    if (e.target.closest('.modal-card') || e.target.closest('.control-bar') || e.target.closest('#parent-gate-trigger') || e.target.closest('#logic-game-container')) return;
 
     e.preventDefault();
   }, { passive: false });
 
   document.addEventListener('touchmove', (e) => {
-    if (e.target.closest('.modal-card')) return;
+    if (e.target.closest('.modal-card') || e.target.closest('#logic-game-container')) return;
     e.preventDefault();
   }, { passive: false });
 
@@ -76,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Touch & Pointer Down Handler (Smash / Drag Animal / Pop Bubble)
   document.addEventListener('pointerdown', (e) => {
     // Ignore interactive UI elements
-    if (e.target.closest('.modal-card') || e.target.closest('.control-bar') || e.target.closest('#parent-gate-trigger') || e.target.closest('#start-overlay')) {
+    if (e.target.closest('.modal-card') || e.target.closest('.control-bar') || e.target.closest('#parent-gate-trigger') || e.target.closest('#start-overlay') || e.target.closest('#logic-game-container')) {
       return;
     }
 

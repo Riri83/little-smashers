@@ -32,8 +32,17 @@ class GameModeManager {
   }
 
   setMode(mode) {
-    if (['shapes', 'abc', 'animals', 'music', 'bubbles'].includes(mode)) {
+    if (['shapes', 'abc', 'animals', 'music', 'bubbles', 'logic'].includes(mode)) {
       this.currentMode = mode;
+
+      // Show/hide Logic Puzzles overlay
+      if (window.logicGamesEngine) {
+        if (mode === 'logic') {
+          window.logicGamesEngine.show();
+        } else {
+          window.logicGamesEngine.hide();
+        }
+      }
 
       // When selecting a main game mode with sub-options (animals/bubbles), open flyout sub-menu
       if (mode === 'animals' || mode === 'bubbles') {
@@ -149,6 +158,11 @@ class GameModeManager {
 
       case 'bubbles':
         this.processBubblesMode(posX, posY, randomColor, canvas, audio);
+        break;
+
+      case 'logic':
+        canvas.spawnExplosion(posX, posY, randomColor);
+        audio.playTone();
         break;
     }
   }

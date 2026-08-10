@@ -1,4 +1,4 @@
-const CACHE_NAME = 'little-smashers-v1';
+const CACHE_NAME = 'little-smashers-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   './css/styles.css',
   './js/audio.js',
   './js/canvas.js',
+  './js/logic-games.js',
   './js/modes.js',
   './js/kiosk-guide.js',
   './js/app.js'

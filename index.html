@@ -104,6 +104,11 @@
               <button id="opt-bubble-float" class="switch-pill" title="Floating Mode">🫧 Float</button>
             </div>
           </div>
+
+          <button class="mode-btn" data-mode="logic" title="Logic Puzzles (Ages 0-4)">
+            <span class="mode-icon">🧩</span>
+            <span class="mode-label">Logic</span>
+          </button>
         </div>
 
         <div class="control-actions">
@@ -294,10 +299,14 @@
       </div>
     </div>
 
+    <!-- LogicLike 0-4 Puzzles Overlay Container -->
+    <div id="logic-game-container" class="logic-container hidden"></div>
+
   </main>
 
   <script src="js/audio.js"></script>
   <script src="js/canvas.js"></script>
+  <script src="js/logic-games.js"></script>
   <script src="js/modes.js"></script>
   <script src="js/kiosk-guide.js"></script>
   <script src="js/app.js"></script>
