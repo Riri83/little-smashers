@@ -170,10 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const existing = document.getElementById('ios-fs-toast');
     if (existing) existing.remove();
 
+    // Detect iOS non-Safari browsers (Chrome, Firefox, Edge all use WebKit but can't install PWAs)
+    const isIOSNonSafari = /CriOS|FxiOS|OPiOS|EdgiOS/.test(navigator.userAgent);
+    const message = isIOSNonSafari
+      ? '📱 For fullscreen, open this page in <strong>Safari</strong> → tap <strong>Share</strong> ↗ → <strong>Add to Home Screen</strong>'
+      : '📱 For fullscreen on iOS, tap <strong>Share</strong> ↗ then <strong>Add to Home Screen</strong>';
+
     const toast = document.createElement('div');
     toast.id = 'ios-fs-toast';
     toast.className = 'ios-fullscreen-toast';
-    toast.innerHTML = '📱 For fullscreen on iOS, tap <strong>Share</strong> ↗ then <strong>Add to Home Screen</strong>';
+    toast.innerHTML = message;
     document.body.appendChild(toast);
 
     requestAnimationFrame(() => toast.classList.add('visible'));
