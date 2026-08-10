@@ -772,9 +772,6 @@ html, body {
     width: 40px;
     padding: 5px 3px;
     gap: 4px;
-    max-height: calc(100vh - 12px);
-    max-height: calc(100dvh - 12px);
-    overflow-y: auto;
     border-radius: 22px;
   }
 
